@@ -1,0 +1,13 @@
+{
+  "name": "nexus-counter-dapp",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "counter-dapp",
+    "hardhat-counter"
+  ],
+  "scripts": {
+    "frontend": "cd counter-dapp && npm run dev",
+    "deploy": "cd hardhat-counter && npx hardhat run scripts/deploy.ts --network nexus"
+  }
+} 
