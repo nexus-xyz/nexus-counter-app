@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "counter-dapp",
-    "hardhat-counter"
+    "contracts",
+    "frontend"
   ],
   "scripts": {
-    "frontend": "cd counter-dapp && npm run dev",
-    "deploy": "cd hardhat-counter && npx hardhat run scripts/deploy.ts --network nexus"
+    "frontend": "cd frontend && npm run dev",
+    "deploy": "cd contracts && npx hardhat run scripts/deploy.ts --network nexus"
   }
 } 
