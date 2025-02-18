@@ -1,22 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { useState, useEffect, useCallback } from 'react'
+import { BrowserProvider, JsonRpcSigner, Contract } from 'ethers'
 
-const CONTRACT_ADDRESS = '0x6DDc7dd77CbeeA3445b70CB04E0244BBa245e011' // You'll need to update this after deploying to Nexus
+const CONTRACT_ADDRESS = '0x6DDc7dd77CbeeA3445b70CB04E0244BBa245e011'
 const CONTRACT_ABI = [
   "function increment() public",
   "function getCount() public view returns (uint256)"
 ]
 
-const NEXUS_CHAIN_ID = '0x188' // 392 in hex
+const NEXUS_CHAIN_ID = '0x188'
 const NEXUS_RPC_URL = 'https://rpc.nexus.xyz/http'
 
 export default function Home() {
   const [count, setCount] = useState<number>(0)
   const [isConnected, setIsConnected] = useState(false)
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false)
-  const [signer, setSigner] = useState<ethers.Signer | null>(null)
+  const [signer, setSigner] = useState<JsonRpcSigner | null>(null)
   const [userAddress, setUserAddress] = useState<string>('')
 
   useEffect(() => {
@@ -27,8 +27,8 @@ export default function Home() {
       window.ethereum.on('chainChanged', async () => {
         const networkCorrect = await checkNetwork()
         if (networkCorrect) {
-          const provider = new ethers.providers.Web3Provider(window.ethereum)
-          setSigner(provider.getSigner())
+          const provider = new BrowserProvider(window.ethereum)
+          setSigner(await provider.getSigner())
           await getCount()
         }
       })
@@ -51,11 +51,23 @@ export default function Home() {
     }
   }, [signer])
 
-  const checkNetwork = async () => {
+  const getCount = useCallback(async () => {
+    if (!signer) return
+    
+    const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
+    try {
+      const currentCount = await contract.getCount()
+      setCount(Number(currentCount))
+    } catch (error) {
+      console.error('Error getting count:', error)
+    }
+  }, [signer])
+
+  const checkNetwork = useCallback(async () => {
     const chainId = await window.ethereum.request({ method: 'eth_chainId' })
     setIsCorrectNetwork(chainId === NEXUS_CHAIN_ID)
     return chainId === NEXUS_CHAIN_ID
-  }
+  }, [])
 
   const switchNetwork = async () => {
     try {
@@ -65,8 +77,8 @@ export default function Home() {
       })
       const networkCorrect = await checkNetwork()
       if (networkCorrect) {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        setSigner(provider.getSigner())
+        const provider = new BrowserProvider(window.ethereum)
+        setSigner(await provider.getSigner())
         await getCount()
       }
       return true
@@ -88,8 +100,8 @@ export default function Home() {
           })
           const networkCorrect = await checkNetwork()
           if (networkCorrect) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            setSigner(provider.getSigner())
+            const provider = new BrowserProvider(window.ethereum)
+            setSigner(await provider.getSigner())
             await getCount()
           }
           return true
@@ -103,59 +115,44 @@ export default function Home() {
     }
   }
 
-  const checkWalletConnection = async () => {
+  const checkWalletConnection = useCallback(async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const provider = new BrowserProvider(window.ethereum)
         const accounts = await provider.listAccounts()
         if (accounts.length > 0) {
           const networkCorrect = await checkNetwork()
           setIsConnected(true)
           if (networkCorrect) {
-            setSigner(provider.getSigner())
+            setSigner(await provider.getSigner())
           }
         }
       } catch (error) {
         console.error('Error checking wallet connection:', error)
       }
     }
-  }
+  }, [checkNetwork])
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
+        const provider = new BrowserProvider(window.ethereum)
         await provider.send('eth_requestAccounts', [])
-        setIsConnected(true)
-        
         const networkCorrect = await checkNetwork()
-        if (!networkCorrect) {
-          await switchNetwork()
+        setIsConnected(true)
+        if (networkCorrect) {
+          setSigner(await provider.getSigner())
         }
-        setSigner(provider.getSigner())
-        await getCount()
       } catch (error) {
         console.error('Error connecting wallet:', error)
       }
     }
   }
 
-  const getCount = async () => {
-    if (!signer) return
-    
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
-    try {
-      const currentCount = await contract.getCount()
-      setCount(currentCount.toNumber())
-    } catch (error) {
-      console.error('Error getting count:', error)
-    }
-  }
-
   const incrementCount = async () => {
     if (!signer) return
     
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
+    const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
     try {
       const tx = await contract.increment()
       await tx.wait()
