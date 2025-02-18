@@ -11,6 +11,7 @@ const CONTRACT_ABI = [
 
 const NEXUS_CHAIN_ID = '0x188'
 const NEXUS_RPC_URL = 'https://rpc.nexus.xyz/http'
+const EXPLORER_URL = 'https://explorer.nexus.xyz'
 
 export default function Home() {
   const [count, setCount] = useState<number>(0)
@@ -18,6 +19,7 @@ export default function Home() {
   const [isCorrectNetwork, setIsCorrectNetwork] = useState(false)
   const [signer, setSigner] = useState<JsonRpcSigner | null>(null)
   const [userAddress, setUserAddress] = useState<string>('')
+  const [lastTxHash, setLastTxHash] = useState<string>('')
 
   useEffect(() => {
     checkWalletConnection()
@@ -155,6 +157,7 @@ export default function Home() {
     const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
     try {
       const tx = await contract.increment()
+      setLastTxHash(tx.hash)
       await tx.wait()
       await getCount()
     } catch (error) {
@@ -165,6 +168,11 @@ export default function Home() {
   const formatAddress = (address: string) => {
     if (!address) return ''
     return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  const formatHash = (hash: string) => {
+    if (!hash) return ''
+    return `${hash.slice(0, 6)}...${hash.slice(-4)}`
   }
 
   return (
@@ -206,14 +214,42 @@ export default function Home() {
                   <div className="text-8xl font-light text-black">
                     {count}
                   </div>
-                  <button
-                    onClick={incrementCount}
-                    className="px-8 py-3 text-sm font-medium text-white bg-black rounded-full 
-                             hover:bg-gray-800 transition-colors duration-200
-                             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                  >
-                    Increment Counter
-                  </button>
+                  <div className="flex flex-col items-center space-y-3">
+                    <button
+                      onClick={incrementCount}
+                      className="px-8 py-3 text-sm font-medium text-white bg-black rounded-full 
+                               hover:bg-gray-800 transition-colors duration-200
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                    >
+                      Increment Counter
+                    </button>
+                    {lastTxHash && (
+                      <a
+                        href={`${EXPLORER_URL}/tx/${lastTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-sm text-gray-500 hover:text-gray-800 
+                                 transition-colors duration-200"
+                        aria-label={`View transaction ${formatHash(lastTxHash)} on Nexus Explorer`}
+                      >
+                        <span className="mr-1">Latest tx:</span>
+                        <span className="font-medium">{formatHash(lastTxHash)}</span>
+                        <svg 
+                          className="w-3.5 h-3.5 ml-1" 
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
+                          />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
