@@ -1,6 +1,6 @@
-# Ethereum Counter dApp
+# Nexus Testnet Counter App
 
-A simple decentralized application (dApp) built with Next.js that interacts with a counter smart contract on the Nexus testnet.
+A simple decentralized application (dApp) built with Next.js that interacts with a counter smart contract on the Nexus Testnet.
 
 ## Overview
 
@@ -18,6 +18,10 @@ This project demonstrates a basic integration between a web application and the 
 - NEX for gas fees (get from the Nexus faucet)
 - A code editor (VS Code or Cursor recommended)
 
+## Getting Testnet NEX
+
+To interact with the Nexus testnet, you'll need testnet NEX tokens for gas fees. These can be obtained from the Nexus Testnet Faucet at https://hub.nexus.xyz.
+
 ## Smart Contract Details
 
 The Counter smart contract (`contracts/src/Counter.sol`) implements:
@@ -26,10 +30,26 @@ The Counter smart contract (`contracts/src/Counter.sol`) implements:
 - A getter function to read the current count
 - An event emission after each increment
 
-Key contract functions:
+The current Counter contract is deployed to the Nexus testnet at address `0x6DDc7dd77CbeeA3445b70CB04E0244BBa245e011`. See the code below for the contract's source code.
+
 ```solidity
-function increment() public
-function getCount() public view returns (uint256)
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Counter {
+    uint256 private count;
+    
+    event CountIncremented(uint256 newCount);
+    
+    function increment() public {
+        count += 1;
+        emit CountIncremented(count);
+    }
+    
+    function getCount() public view returns (uint256) {
+        return count;
+    }
+}
 ```
 
 ## Installation & Setup
@@ -96,7 +116,7 @@ npm run dev
 ## Common Issues & Solutions
 
 1. Transaction Failures:
-   - Ensure you have enough Nexus ETH for gas
+   - Ensure you have enough NEX for gas
    - Check if MetaMask is connected to Nexus testnet
 
 2. Wallet Connection Issues:
@@ -108,7 +128,7 @@ npm run dev
 
 ### Project Structure
 ```
-your-repo/
+this-repo/
 ├── contracts/
 │   └── contracts/
 │       └── Counter.sol
