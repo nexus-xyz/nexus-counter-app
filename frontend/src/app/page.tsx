@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { BrowserProvider, JsonRpcSigner, Contract } from 'ethers'
 
-const CONTRACT_ADDRESS = '0x6DDc7dd77CbeeA3445b70CB04E0244BBa245e011'
+const CONTRACT_ADDRESS = '0xa1fFB51c7930a6251fD86045b46569458444AE35'
 const CONTRACT_ABI = [
   "function increment() public",
+  "function decrement() public",
   "function getCount() public view returns (uint256)"
 ]
 
@@ -165,6 +166,20 @@ export default function Home() {
     }
   }
 
+  const decrementCount = async () => {
+    if (!signer) return
+    
+    const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer)
+    try {
+      const tx = await contract.decrement()
+      setLastTxHash(tx.hash)
+      await tx.wait()
+      await getCount()
+    } catch (error) {
+      console.error('Error decrementing count:', error)
+    }
+  }
+
   const formatAddress = (address: string) => {
     if (!address) return ''
     return `${address.slice(0, 6)}...${address.slice(-4)}`
@@ -215,14 +230,25 @@ export default function Home() {
                     {count}
                   </div>
                   <div className="flex flex-col items-center space-y-3">
-                    <button
-                      onClick={incrementCount}
-                      className="px-8 py-3 text-sm font-medium text-white bg-black rounded-full 
-                               hover:bg-gray-800 transition-colors duration-200
-                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-                    >
-                      Increment Counter
-                    </button>
+                    <div className="flex flex-row gap-4">
+                      <button
+                        onClick={decrementCount}
+                        className="px-8 py-3 text-sm font-medium text-white bg-black rounded-full 
+                                hover:bg-gray-800 transition-colors duration-200
+                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                      >
+                        Decrement Counter
+                      </button>
+                      <button
+                        onClick={incrementCount}
+                        className="px-8 py-3 text-sm font-medium text-white bg-black rounded-full 
+                                hover:bg-gray-800 transition-colors duration-200
+                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                      >
+                        Increment Counter
+                      </button>
+                    </div>
+                    
                     {lastTxHash && (
                       <a
                         href={`${EXPLORER_URL}/tx/${lastTxHash}`}
