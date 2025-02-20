@@ -1,12 +1,43 @@
-import { ethers } from "hardhat";
+import { ethers, run } from "hardhat";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function main() {
-  const Counter = await ethers.getContractFactory("Counter");
-  const counter = await Counter.deploy();
+  const name = process.env.NFT_NAME || "LuckyCounter";
+  const symbol = process.env.NFT_SYMBOL || "LUCKY";
+  const rewardChance = 3;
+  const nexusChainId = parseInt(process.env.NEXUS_CHAIN_ID || "392");
 
+  console.log("Deploying LuckyCounter with parameters:");
+  console.log(`Name: ${name}`);
+  console.log(`Symbol: ${symbol}`);
+  console.log(`Initial Reward Chance: ${rewardChance}%`);
+  console.log(`Chain ID: ${nexusChainId}`);
+  console.log(`Ticket Price: 0.01 NEX`);
+
+  const LuckyCounter = await ethers.getContractFactory("LuckyCounter");
+
+  console.log("Deploying contract...");
+  const counter = await LuckyCounter.deploy(name, symbol, rewardChance, nexusChainId);
+  console.log("Waiting for deployment...");
   await counter.waitForDeployment();
+  const contractAddress = await counter.getAddress();
+  console.log(`LuckyCounter deployed to: ${contractAddress}`);
 
-  console.log(`Counter deployed to ${await counter.getAddress()}`);
+  console.log("Waiting for 5 blocks before verification...");
+  await new Promise(resolve => setTimeout(resolve, 30000));
+
+  try {
+    await run("verify:verify", {
+      address: contractAddress,
+      constructorArguments: [name, symbol, rewardChance, nexusChainId],
+    });
+    console.log("Verification completed ✅");
+  } catch (error) {
+    console.error("Verification failed ❌", error);
+  }
+
 }
 
 main().catch((error) => {
