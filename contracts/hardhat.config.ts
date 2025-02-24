@@ -12,7 +12,7 @@ const config: HardhatUserConfig = {
     nexus: {
       url: "https://rpc.nexus.xyz/http",
       accounts: [PRIVATE_KEY],
-      chainId: 392
+      chainId: 393
     }
   }
 };

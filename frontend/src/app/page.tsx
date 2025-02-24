@@ -9,7 +9,7 @@ const CONTRACT_ABI = [
   "function getCount() public view returns (uint256)"
 ]
 
-const NEXUS_CHAIN_ID = '0x188'
+const NEXUS_CHAIN_ID = '0x189'
 const NEXUS_RPC_URL = 'https://rpc.nexus.xyz/http'
 const EXPLORER_URL = 'https://explorer.nexus.xyz'
 
