@@ -5,7 +5,7 @@ A simple decentralized application (dApp) built with Next.js that interacts with
 ## Overview
 
 This project demonstrates a basic integration between a web application and the Nexus blockchain. It features a smart contract that maintains a counter which can only be incremented, showcasing fundamental blockchain interactions like:
-- Smart contract deployment and interaction
+- Smart contract deployment
 - Wallet connection
 - Transaction signing
 - Event listening
@@ -20,7 +20,7 @@ This project demonstrates a basic integration between a web application and the 
 
 ## Getting Testnet NEX
 
-To interact with the Nexus testnet, you'll need testnet NEX tokens for gas fees. These can be obtained from the Nexus Testnet Faucet at https://hub.nexus.xyz.
+To interact with the Nexus devnet (chainID: 393), you'll need testnet NEX tokens for gas fees. These can be obtained from the Nexus Testnet Faucet at https://hub.nexus.xyz.
 
 ## Smart Contract Details
 
@@ -117,7 +117,7 @@ npm run dev
 
 1. Transaction Failures:
    - Ensure you have enough NEX for gas
-   - Check if MetaMask is connected to Nexus testnet
+   - Check if MetaMask is connected to Nexus devnet (chainID: 393)
 
 2. Wallet Connection Issues:
    - Try refreshing the page
